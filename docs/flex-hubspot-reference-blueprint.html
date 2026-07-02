@@ -526,6 +526,13 @@
       margin-top: 16px;
     }
 
+    .vertical-card-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
     .three-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -651,17 +658,40 @@
     }
 
     .checklist {
-      columns: 2;
-      column-gap: 38px;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
       margin: 18px 0 0;
-      padding-left: 1.4rem;
+      padding: 0;
       color: #3a4658;
+      list-style: none;
+      counter-reset: checklist;
     }
 
     .checklist li {
-      break-inside: avoid;
-      margin-bottom: 10px;
-      padding-left: 4px;
+      counter-increment: checklist;
+      position: relative;
+      border: 1px solid #dde6f1;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 16px 16px 16px 50px;
+      line-height: 1.45;
+    }
+
+    .checklist li::before {
+      content: counter(checklist);
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: 800;
     }
 
     .footer-note {
@@ -1268,10 +1298,10 @@
           </div>
           <div class="section-body">
             <p>
-              The browser should never hold HubSpot credentials. Make the plugin powerful, but keep trust boundaries
-              boring. Boring trust boundaries are underrated; they are the spinach of architecture.
+              The browser should never hold HubSpot credentials. The Flex plugin can expose a rich CRM workflow while
+              authentication, write controls, and automation entry points remain behind a server-side boundary.
             </p>
-            <div class="production-grid">
+            <div class="vertical-card-stack">
               <article class="production-card">
                 <h3>Credential Handling</h3>
                 <p>Store HubSpot private app tokens or OAuth credentials only in the backend environment. For production, prefer OAuth when agent-level attribution or marketplace distribution is required.</p>
@@ -1279,10 +1309,6 @@
               <article class="production-card">
                 <h3>Function Exposure</h3>
                 <p>Use public functions only for browser-facing plugin APIs. Use protected functions for Twilio Studio or internal automation such as post-call summary logging.</p>
-              </article>
-              <article class="production-card">
-                <h3>Config</h3>
-                <p>Use build-time Flex plugin config for public values like backend base URL and HubSpot portal region. Do not treat portal IDs as secrets.</p>
               </article>
               <article class="production-card">
                 <h3>Production Evolution</h3>
