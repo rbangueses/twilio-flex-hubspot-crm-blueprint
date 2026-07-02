@@ -1,0 +1,34 @@
+# Local OS/editor artifacts
+.DS_Store
+.claude/
+.codex/
+
+# Local notes and troubleshooting scratchpad
+GOTCHAS.md
+docs/superpowers/
+
+# Environment and deploy metadata
+.env
+.env.local
+.env.*.local
+.env.*
+!.env.example
+*.rbdemo24
+.twiliodeployinfo
+
+# Dependencies and generated output
+node_modules/
+build/
+dist/
+coverage/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Flex local runtime config
+appConfig.js
+pluginsService.js
+
+# Unrelated local experiment/plugin. Keep the HubSpot repo focused.
+plugin-conversation-summary/

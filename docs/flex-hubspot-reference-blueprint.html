@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reference Architecture | Twilio Flex + HubSpot</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #5e697c;
+      --quiet: #7a8494;
+      --line: #dce3ee;
+      --panel: #ffffff;
+      --page: #f4f7fb;
+      --soft: #eef4f9;
+      --nav: #111827;
+      --nav-muted: #aeb8c8;
+      --blue: #1d65d8;
+      --cyan: #0f7f91;
+      --green: #167c5b;
+      --amber: #a45c00;
+      --red: #b42318;
+      --twilio: #d61f2c;
+      --hubspot: #ff5c35;
+      --shadow: 0 18px 60px rgba(23, 32, 51, 0.1);
+      --radius: 8px;
+      --content: 1160px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, #eaf1f8 0, #f7f9fc 430px, var(--page) 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    code {
+      border: 1px solid #d8e0ea;
+      border-radius: 5px;
+      background: #f8fafc;
+      color: #172033;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.92em;
+      padding: 0.08rem 0.28rem;
+    }
+
+    .site-shell {
+      display: grid;
+      grid-template-columns: 290px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 28px 22px;
+      overflow: auto;
+      background: var(--nav);
+      color: #f8fafc;
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-kicker {
+      margin-bottom: 22px;
+      color: var(--nav-muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .nav-title {
+      margin: 0 0 22px;
+      font-size: 1.08rem;
+      line-height: 1.3;
+      font-weight: 750;
+    }
+
+    .nav-links {
+      display: grid;
+      gap: 4px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .nav-links a {
+      display: block;
+      border-radius: 6px;
+      padding: 8px 10px;
+      color: #dbe3ef;
+      font-size: 0.92rem;
+      line-height: 1.3;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:focus {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      outline: none;
+    }
+
+    .nav-meta {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      color: var(--nav-muted);
+      font-size: 0.82rem;
+    }
+
+    main {
+      min-width: 0;
+    }
+
+    .hero {
+      padding: 64px 42px 34px;
+    }
+
+    .hero-inner,
+    .content {
+      width: min(var(--content), calc(100% - 84px));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      border: 1px solid #cdd8e6;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.78);
+      color: #39506f;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      padding: 4px 10px;
+    }
+
+    .pill.twilio {
+      border-color: rgba(214, 31, 44, 0.25);
+      color: #8f1720;
+    }
+
+    .pill.hubspot {
+      border-color: rgba(255, 92, 53, 0.28);
+      color: #9a3412;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 0;
+      color: #111827;
+      font-size: clamp(2.25rem, 5vw, 5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .hero-copy {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 34px;
+      align-items: end;
+      margin-top: 28px;
+    }
+
+    .lead {
+      margin: 0;
+      color: #334155;
+      font-size: 1.12rem;
+      line-height: 1.7;
+    }
+
+    .summary-panel {
+      border: 1px solid #d8e0ea;
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 12px 36px rgba(23, 32, 51, 0.08);
+      padding: 18px;
+    }
+
+    .summary-panel strong {
+      display: block;
+      margin-bottom: 10px;
+      color: #111827;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .summary-panel ul {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #41516a;
+      font-size: 0.94rem;
+      line-height: 1.45;
+    }
+
+    .content {
+      padding: 16px 0 72px;
+    }
+
+    .section {
+      margin: 0 0 26px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 28px 30px 0;
+    }
+
+    .section-kicker {
+      margin: 0 0 6px;
+      color: var(--blue);
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .section-kicker.twilio {
+      color: var(--twilio);
+    }
+
+    .section-kicker.hubspot {
+      color: var(--hubspot);
+    }
+
+    h2,
+    h3 {
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0;
+      color: #111827;
+      font-size: clamp(1.55rem, 3vw, 2.35rem);
+      line-height: 1.12;
+    }
+
+    h3 {
+      margin: 28px 0 8px;
+      color: #1f2937;
+      font-size: 1.16rem;
+      line-height: 1.25;
+    }
+
+    .section-body {
+      padding: 20px 30px 30px;
+    }
+
+    .section-body > p:first-child {
+      margin-top: 0;
+    }
+
+    .section-body p {
+      color: #3a4658;
+    }
+
+    .diagram-wrap {
+      margin: 18px 0 0;
+      border: 1px solid #dbe4f0;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, #fbfdff, #f3f7fb);
+      padding: 22px;
+      overflow-x: auto;
+    }
+
+    .architecture-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(230px, 1fr));
+      gap: 14px;
+      min-width: 760px;
+    }
+
+    .arch-card {
+      position: relative;
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #ffffff;
+      padding: 18px;
+    }
+
+    .arch-card:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      top: 50%;
+      right: -18px;
+      transform: translateY(-50%);
+      color: #8a96a8;
+      font-size: 1.35rem;
+      font-weight: 800;
+      z-index: 2;
+    }
+
+    .arch-card h3 {
+      margin-top: 0;
+    }
+
+    .arch-card ul,
+    .decision-card ul,
+    .production-card ul {
+      margin: 10px 0 0;
+      padding-left: 1.25rem;
+      color: #3a4658;
+    }
+
+    .arch-label,
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #3730a3;
+      font-size: 0.76rem;
+      font-weight: 750;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    .arch-label.flex {
+      background: #fff1f2;
+      color: #991b1b;
+    }
+
+    .arch-label.backend {
+      background: #eef2ff;
+      color: #3730a3;
+    }
+
+    .arch-label.crm {
+      background: #fff7ed;
+      color: #9a3412;
+    }
+
+    .pattern-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0 20px;
+      padding: 0;
+      list-style: none;
+      counter-reset: pattern;
+    }
+
+    .pattern-list li {
+      counter-increment: pattern;
+      position: relative;
+      border: 1px solid #dde6f1;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 18px 16px 16px 48px;
+      color: #3b4656;
+      line-height: 1.45;
+    }
+
+    .pattern-list li::before {
+      content: counter(pattern);
+      position: absolute;
+      top: 16px;
+      left: 14px;
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.8rem;
+      font-weight: 800;
+    }
+
+    .callout {
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 var(--radius) var(--radius) 0;
+      background: #eef8fb;
+      color: #274454;
+      padding: 16px 18px;
+    }
+
+    .callout strong {
+      color: #0f5d6b;
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: #fff8ef;
+      color: #563a1b;
+    }
+
+    .callout.warning strong {
+      color: var(--amber);
+    }
+
+    .flow-grid,
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .production-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .three-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .flow-card,
+    .decision-card,
+    .production-card {
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      padding: 18px;
+    }
+
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .screenshot-card {
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #fbfdff;
+      overflow: hidden;
+    }
+
+    .screenshot-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-bottom: 1px solid #dce5f0;
+    }
+
+    .screenshot-caption {
+      padding: 14px 16px 16px;
+    }
+
+    .screenshot-caption h3 {
+      margin: 0 0 6px;
+    }
+
+    .screenshot-caption p {
+      margin: 0;
+      color: #3a4658;
+    }
+
+    .flow-card {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      column-gap: 14px;
+      align-items: start;
+    }
+
+    .flow-card h3,
+    .flow-card p {
+      grid-column: 2;
+    }
+
+    .flow-card h3,
+    .decision-card h3,
+    .production-card h3 {
+      margin-top: 0;
+    }
+
+    .flow-card p,
+    .decision-card p,
+    .production-card p {
+      margin-bottom: 0;
+    }
+
+    .flow-number {
+      display: inline-grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      margin-top: 2px;
+      border-radius: 50%;
+      background: #e8f1ff;
+      color: var(--blue);
+      font-weight: 800;
+      grid-row: 1 / span 2;
+    }
+
+    .table-wrap {
+      width: 100%;
+      margin: 16px 0 22px;
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+
+    table {
+      width: 100%;
+      min-width: 720px;
+      border-collapse: collapse;
+      background: #ffffff;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 13px 15px;
+      border-bottom: 1px solid #e5ebf3;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f6fa;
+      color: #243047;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .checklist {
+      columns: 2;
+      column-gap: 38px;
+      margin: 18px 0 0;
+      padding-left: 1.4rem;
+      color: #3a4658;
+    }
+
+    .checklist li {
+      break-inside: avoid;
+      margin-bottom: 10px;
+      padding-left: 4px;
+    }
+
+    .footer-note {
+      width: min(var(--content), calc(100% - 84px));
+      margin: 0 auto;
+      padding: 0 0 52px;
+      color: var(--quiet);
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    @media (max-width: 1040px) {
+      .site-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .side-nav {
+        position: static;
+        height: auto;
+        padding: 18px 24px;
+      }
+
+      .nav-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .nav-meta {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 46px;
+      }
+
+      .hero-copy,
+      .production-grid,
+      .three-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body {
+        font-size: 15px;
+      }
+
+      .hero {
+        padding: 34px 18px 22px;
+      }
+
+      .hero-inner,
+      .content,
+      .footer-note {
+        width: calc(100% - 36px);
+      }
+
+      .section-header,
+      .section-body {
+        padding-left: 18px;
+        padding-right: 18px;
+      }
+
+      .nav-links {
+        grid-template-columns: 1fr;
+      }
+
+      .checklist {
+        columns: 1;
+      }
+
+      .flow-card {
+        grid-template-columns: 38px minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="site-shell">
+    <aside class="side-nav" aria-label="Document navigation">
+      <div class="nav-kicker">Reference Architecture</div>
+      <h2 class="nav-title">Twilio Flex + HubSpot CRM</h2>
+      <ol class="nav-links">
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#business-benefits">Business Benefits</a></li>
+        <li><a href="#screenshots">Screenshots</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#workflow">Agent Workflow</a></li>
+        <li><a href="#capabilities">Capabilities</a></li>
+        <li><a href="#automation">Automation Pattern</a></li>
+        <li><a href="#caching">Caching + Limits</a></li>
+        <li><a href="#partner-review">HubSpot Review</a></li>
+        <li><a href="#security">Security</a></li>
+        <li><a href="#checklist">Production Checklist</a></li>
+        <li><a href="#endpoints">Reference Endpoints</a></li>
+      </ol>
+      <div class="nav-meta">
+        A reusable blueprint for embedding HubSpot customer context and CRM actions into Twilio Flex with a backend API boundary.
+      </div>
+    </aside>
+
+    <main>
+      <header class="hero" id="overview">
+        <div class="hero-inner">
+          <div class="eyebrow">
+            <span class="pill twilio">Twilio Flex</span>
+            <span class="pill hubspot">HubSpot CRM</span>
+            <span class="pill">Agent Screen Pop</span>
+            <span class="pill">Single Pane Of Glass</span>
+          </div>
+          <h1>Programmable CRM Panel For HubSpot Inside Flex</h1>
+          <div class="hero-copy">
+            <p class="lead">
+              A reference architecture for bringing HubSpot customer context directly into Twilio Flex, giving agents
+              instant screen pops, interaction history, CRM actions, and post-call note automation in a single workspace.
+            </p>
+            <div class="summary-panel" aria-label="Blueprint summary">
+              <strong>Business outcomes</strong>
+              <ul>
+                <li>Faster customer identification at answer time</li>
+                <li>Less tab switching for agents</li>
+                <li>Cleaner HubSpot notes and call history</li>
+                <li>Better follow-up through tickets and deals</li>
+              </ul>
+            </div>
+          </div>
+          <div style="margin-top: 22px;" class="callout warning">
+            <strong>Why not iframe HubSpot?</strong> Modern CRM products, including HubSpot, commonly restrict being embedded
+            inside third-party applications for security, session, and clickjacking-protection reasons. Instead of trying
+            to frame the HubSpot UI inside Flex, this blueprint uses a programmable Flex plugin backed by HubSpot APIs.
+            That gives agents the CRM context they need while keeping HubSpot as the source of truth and preserving a
+            deep link back to the full HubSpot record when richer CRM work is needed.
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="section" id="business-benefits">
+          <div class="section-header">
+            <p class="section-kicker twilio">Why It Matters</p>
+            <h2>Business Benefits</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The goal is not to rebuild all of HubSpot inside Flex. The goal is to put the highest-leverage CRM context
+              and actions in front of the agent at the moment they need them, while leaving HubSpot as the complete CRM
+              system of record.
+            </p>
+            <div class="decision-grid">
+              <article class="decision-card">
+                <h3>Screen Pop At Answer Time</h3>
+                <p>Agents see who is calling, how to address them, and whether there are open tickets or active deals before they lose the first few seconds of the conversation.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Interaction History In Context</h3>
+                <p>Recent notes, calls, tickets, and deals are available in the same surface as the live Flex task, reducing the need to hunt through another tab.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Automated CRM Hygiene</h3>
+                <p>Twilio Studio or post-call automation can push summaries and call metadata into HubSpot so agents do not have to manually recreate conversation notes.</p>
+              </article>
+              <article class="decision-card">
+                <h3>Single Pane Of Glass</h3>
+                <p>Agents can search contacts, review tickets and deals, update common fields, and launch outbound calls from Flex while still retaining a deep link to HubSpot.</p>
+              </article>
+            </div>
+            <p class="callout">
+              <strong>Pragmatic scope:</strong> Use Flex for the agent-critical workflow and HubSpot for the full CRM record.
+              That keeps the integration useful without turning the plugin into a second CRM product to maintain.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="screenshots">
+          <div class="section-header">
+            <p class="section-kicker twilio">Example UI</p>
+            <h2>Agent Experience Screenshots</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              These examples show the pattern in practice: the live Flex task stays in the main agent workspace while the
+              right-hand CRM panel renders HubSpot context and actions purpose-built for the agent workflow.
+            </p>
+            <div class="screenshot-grid">
+              <figure class="screenshot-card">
+                <img src="assets/flex-hubspot-activities.png" alt="Twilio Flex showing a HubSpot contact details tab with recent call activities and automated call summaries.">
+                <figcaption class="screenshot-caption">
+                  <h3>Customer Details And Activity Timeline</h3>
+                  <p>Agents can see customer fields, recent calls, and AI-generated call summaries without leaving Flex.</p>
+                </figcaption>
+              </figure>
+              <figure class="screenshot-card">
+                <img src="assets/flex-hubspot-tickets.png" alt="Twilio Flex showing HubSpot tickets with expanded ticket details, priority, and status badges.">
+                <figcaption class="screenshot-caption">
+                  <h3>Tickets In The CRM Panel</h3>
+                  <p>Open and closed tickets can be surfaced next to the call, with status and priority controls tailored to the support process.</p>
+                </figcaption>
+              </figure>
+              <figure class="screenshot-card">
+                <img src="assets/flex-hubspot-notes.png" alt="Twilio Flex showing the HubSpot notes tab with a note form.">
+                <figcaption class="screenshot-caption">
+                  <h3>Notes Written Back To HubSpot</h3>
+                  <p>Agents can add structured notes during or after the conversation, while automation can write summaries through the same backend pattern.</p>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="architecture">
+          <div class="section-header">
+            <p class="section-kicker">System View</p>
+            <h2>Architecture At A Glance</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Keep the Flex plugin focused on agent experience. Keep authentication, rate-limit handling,
+              caching, retries, and HubSpot-specific API behavior in the backend.
+            </p>
+            <div class="diagram-wrap">
+              <div class="architecture-grid" aria-label="Architecture diagram">
+                <article class="arch-card">
+                  <span class="arch-label flex">Twilio Flex</span>
+                  <h3>Agent Desktop Plugin</h3>
+                  <ul>
+                    <li>Screen pop by phone number</li>
+                    <li>Contact header, tickets, deals, notes, and timeline</li>
+                    <li>Custom CRM panel, idle dashboard, and click-to-dial</li>
+                    <li>Optimistic UI and targeted refreshes after writes</li>
+                  </ul>
+                </article>
+                <article class="arch-card">
+                  <span class="arch-label backend">Backend API</span>
+                  <h3>Twilio Functions Or Service Layer</h3>
+                  <ul>
+                    <li>Stores HubSpot token server-side</li>
+                    <li>Normalizes phone numbers and payloads</li>
+                    <li>Applies cache, backoff, and rate-limit controls</li>
+                    <li>Supports protected functions for Studio automation</li>
+                  </ul>
+                </article>
+                <article class="arch-card">
+                  <span class="arch-label crm">HubSpot</span>
+                  <h3>CRM APIs</h3>
+                  <ul>
+                    <li>Contacts, companies, tickets, and deals</li>
+                    <li>Calls, notes, and activity timeline</li>
+                    <li>Associations, pipelines, owners, and properties</li>
+                    <li>Full record remains available in HubSpot</li>
+                  </ul>
+                </article>
+              </div>
+            </div>
+            <p class="callout">
+              <strong>Design principle:</strong> Flex calls your backend, your backend calls HubSpot, and HubSpot remains
+              the source of truth. The browser should never hold HubSpot credentials.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="workflow">
+          <div class="section-header">
+            <p class="section-kicker twilio">Agent Experience</p>
+            <h2>Screen Pop And Staggered Context</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The integration should feel fast even when HubSpot has a lot of related data. Load what the agent needs
+              first, then progressively hydrate richer context.
+            </p>
+            <div class="flow-grid">
+              <article class="flow-card">
+                <span class="flow-number">1</span>
+                <h3>Call Arrives</h3>
+                <p>Flex receives a task and extracts the customer phone from inbound or outbound task attributes.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">2</span>
+                <h3>Contact Lookup</h3>
+                <p>The backend searches HubSpot by normalized phone number and returns a concise contact summary.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">3</span>
+                <h3>Screen Pop</h3>
+                <p>The plugin renders name, phone, email, company, owner, and a deep link to HubSpot.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">4</span>
+                <h3>Staggered Context</h3>
+                <p>Tickets, notes, deals, companies, and activities load independently so one slow API does not block the panel.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">5</span>
+                <h3>Agent Action</h3>
+                <p>The agent can update records, log calls, close tickets, move deals, or open the full HubSpot record.</p>
+              </article>
+            </div>
+            <div class="callout">
+              <strong>Programmable UI:</strong> Flex plugins are React applications. The layout, information hierarchy,
+              controls, and visual styling are fully customizable rather than limited to a fixed CRM embed.
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="capabilities">
+          <div class="section-header">
+            <p class="section-kicker">Capability Model</p>
+            <h2>Integration Capabilities</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              Treat this as a menu. A proof of concept can start with read-only screen pop and grow into a full
+              operational CRM workspace.
+            </p>
+            <div class="three-grid">
+              <article class="production-card">
+                <h3>Read Path</h3>
+                <p>Show customer context without making agents tab-hop.</p>
+                <ul>
+                  <li>Contact lookup by phone</li>
+                  <li>Open tickets and recent ticket history</li>
+                  <li>Deals, company details, notes, and call timeline</li>
+                  <li>Fallback dashboard when there is no active call</li>
+                </ul>
+              </article>
+              <article class="production-card">
+                <h3>Write Path</h3>
+                <p>Keep routine CRM work inside Flex.</p>
+                <ul>
+                  <li>Create and update contacts</li>
+                  <li>Create, edit, prioritize, and close tickets</li>
+                  <li>Create and progress deals through pipeline stages</li>
+                  <li>Add and delete notes or manually logged calls</li>
+                </ul>
+              </article>
+              <article class="production-card">
+                <h3>Automation Path</h3>
+                <p>Use protected functions for server-side automation.</p>
+                <ul>
+                  <li>Twilio Studio post-call call logging</li>
+                  <li>Conversation summary written to HubSpot calls</li>
+                  <li>No automatic contact creation when lookup fails</li>
+                  <li>Future QA, intent, or disposition enrichment</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="automation">
+          <div class="section-header">
+            <p class="section-kicker">Data Push Pattern</p>
+            <h2>Automatically Publishing Conversation Data To HubSpot</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The same backend boundary used by the Flex plugin can also receive trusted server-side events from Twilio
+              products and write the resulting conversation data into HubSpot. This lets teams improve CRM hygiene without
+              asking agents to manually copy summaries, transcripts, dispositions, or intent data after every call.
+            </p>
+            <div class="flow-grid">
+              <article class="flow-card">
+                <span class="flow-number">1</span>
+                <h3>Conversation Completes</h3>
+                <p>A call ends in Flex, Studio, or another Twilio voice flow. The system has a call SID, customer number, agent context, and routing metadata.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">2</span>
+                <h3>Twilio Produces Intelligence</h3>
+                <p>Twilio Conversation Intelligence, Flex Copilot, or another summarization layer generates transcripts, summaries, intents, outcomes, or QA signals.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">3</span>
+                <h3>Protected Function Receives The Event</h3>
+                <p>Studio or a callback invokes a protected backend function with the summary, transcript reference, direction, duration, call SID, and customer phone.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">4</span>
+                <h3>Backend Resolves The HubSpot Contact</h3>
+                <p>The function searches HubSpot by normalized customer phone number. If no contact exists, it should skip logging rather than create a record unless that behavior is explicitly approved.</p>
+              </article>
+              <article class="flow-card">
+                <span class="flow-number">5</span>
+                <h3>HubSpot Is Updated</h3>
+                <p>The backend writes a call log, note, or custom object record with the summary, transcript link, call metadata, and selected AI fields.</p>
+              </article>
+            </div>
+            <div class="production-grid">
+              <article class="production-card">
+                <h3>Good Candidates For Automatic Push</h3>
+                <ul>
+                  <li>Call summaries and next steps</li>
+                  <li>Transcript links or transcript IDs</li>
+                  <li>Primary intent, product mentioned, and quote requested flags</li>
+                  <li>Agent, queue, call direction, duration, and call SID</li>
+                  <li>Disposition, sentiment, or QA outcomes when approved by operations</li>
+                </ul>
+              </article>
+              <article class="production-card">
+                <h3>Production Guardrails</h3>
+                <ul>
+                  <li>Use protected Twilio Functions or authenticated backend callbacks.</li>
+                  <li>Make writes idempotent using call SID or transcript SID.</li>
+                  <li>Only create HubSpot records automatically when the CRM owner approves that policy.</li>
+                  <li>Keep large transcripts as links or attachments if they exceed practical CRM note length.</li>
+                  <li>Validate retention, privacy, PCI, and consent requirements for transcript storage.</li>
+                </ul>
+              </article>
+            </div>
+            <p class="callout">
+              <strong>Pattern reuse:</strong> once the API-backed CRM boundary exists, Flex UI actions and Twilio automation
+              can both use it. Agents get live context; backend automations keep HubSpot complete after the conversation.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="caching">
+          <div class="section-header">
+            <p class="section-kicker">Performance + Limits</p>
+            <h2>Caching And HubSpot API Limits</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              HubSpot applies app and account-level API limits. The blueprint should assume that every agent screen pop
+              can otherwise fan out into several CRM API calls.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Cache Strategy</th>
+                    <th>Invalidation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Phone → Contact ID</strong></td>
+                    <td>Short TTL cache keyed by normalized E.164 phone. This protects repeated lookups during transfers or refreshes.</td>
+                    <td>Invalidate after contact create/update or after a failed lookup is retried manually.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Contact Summary</strong></td>
+                    <td>Short TTL cache for header fields used in screen pop.</td>
+                    <td>Write-through after Flex edits; refresh on tab focus or agent request.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Tickets, Deals, Activities</strong></td>
+                    <td>Short TTL per contact and object type. Load tabs lazily where possible.</td>
+                    <td>Invalidate only the affected object list after create/update/delete.</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Owners, Pipelines, Properties</strong></td>
+                    <td>Longer TTL metadata cache because these change less often and are shared across agents.</td>
+                    <td>Scheduled refresh, admin-triggered refresh, or webhook-driven invalidation.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="production-grid">
+              <article class="production-card">
+                <h3>Rate-Limit Posture</h3>
+                <ul>
+                  <li>Use batch APIs for related object reads.</li>
+                  <li>Throttle and queue background refreshes.</li>
+                  <li>Retry <code>429</code> responses with exponential backoff and jitter.</li>
+                  <li>Surface partial data rather than failing the whole CRM panel.</li>
+                </ul>
+              </article>
+              <article class="production-card">
+                <h3>Observability</h3>
+                <ul>
+                  <li>Track HubSpot response headers and request volume per endpoint.</li>
+                  <li>Log HubSpot correlation IDs and Twilio request SIDs.</li>
+                  <li>Report cache hit rate, API fan-out per screen pop, and write failures.</li>
+                  <li>Use HubSpot webhooks where available to reduce polling.</li>
+                </ul>
+              </article>
+            </div>
+            <p class="callout warning">
+              <strong>Reference limit to plan around:</strong> HubSpot lists privately distributed Free and Starter apps
+              at 100 requests per app per 10 seconds and 250,000 requests per account per day. Treat these as planning
+              inputs and verify the current HubSpot limit page before production sizing.
+            </p>
+          </div>
+        </section>
+
+        <section class="section" id="partner-review">
+          <div class="section-header">
+            <p class="section-kicker hubspot">CRM Governance</p>
+            <h2>HubSpot Partner / Expert Vetting</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The technical integration is straightforward; the CRM operating model is where production mistakes hide.
+              Have these areas reviewed by a HubSpot partner, CRM owner, or HubSpot solutions architect before rollout.
+            </p>
+            <div class="decision-grid">
+              <article class="decision-card">
+                <h3>CRM Model Fit</h3>
+                <ul>
+                  <li>Which HubSpot objects are authoritative for support, sales, and account context?</li>
+                  <li>Whether tickets and deals should be created from Flex or only updated from Flex.</li>
+                  <li>How contacts, companies, deals, tickets, calls, and notes should be associated.</li>
+                  <li>Whether custom properties are needed for Twilio call SID, queue, agent, disposition, or AI summary metadata.</li>
+                </ul>
+              </article>
+              <article class="decision-card">
+                <h3>Process And Governance</h3>
+                <ul>
+                  <li>Ticket pipeline statuses and deal stages that match the business process.</li>
+                  <li>Required fields and validation rules before creating records from Flex.</li>
+                  <li>Which HubSpot scopes are acceptable for the integration token or OAuth app.</li>
+                  <li>Data retention, deletion, audit logging, and PII/PCI policies for call notes and summaries.</li>
+                </ul>
+              </article>
+              <article class="decision-card">
+                <h3>Scale Assumptions</h3>
+                <ul>
+                  <li>Expected concurrent agents and calls per hour.</li>
+                  <li>Average number of HubSpot calls per screen pop.</li>
+                  <li>Cache TTLs and invalidation rules that are acceptable to CRM users.</li>
+                  <li>Fallback behavior when HubSpot is unavailable or rate-limited.</li>
+                </ul>
+              </article>
+              <article class="decision-card">
+                <h3>User Experience</h3>
+                <ul>
+                  <li>Which fields agents need in the first five seconds of a call.</li>
+                  <li>Which actions are safe to expose inline versus redirecting to HubSpot.</li>
+                  <li>How duplicate contacts and ambiguous phone matches should be handled.</li>
+                  <li>Whether the Flex plugin should mirror HubSpot or present a purpose-built agent workflow.</li>
+                </ul>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="security">
+          <div class="section-header">
+            <p class="section-kicker">Trust Boundaries</p>
+            <h2>Security And Deployment</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              The browser should never hold HubSpot credentials. Make the plugin powerful, but keep trust boundaries
+              boring. Boring trust boundaries are underrated; they are the spinach of architecture.
+            </p>
+            <div class="production-grid">
+              <article class="production-card">
+                <h3>Credential Handling</h3>
+                <p>Store HubSpot private app tokens or OAuth credentials only in the backend environment. For production, prefer OAuth when agent-level attribution or marketplace distribution is required.</p>
+              </article>
+              <article class="production-card">
+                <h3>Function Exposure</h3>
+                <p>Use public functions only for browser-facing plugin APIs. Use protected functions for Twilio Studio or internal automation such as post-call summary logging.</p>
+              </article>
+              <article class="production-card">
+                <h3>Config</h3>
+                <p>Use build-time Flex plugin config for public values like backend base URL and HubSpot portal region. Do not treat portal IDs as secrets.</p>
+              </article>
+              <article class="production-card">
+                <h3>Production Evolution</h3>
+                <p>Move from a shared private app token to OAuth when per-user attribution, permission boundaries, or multi-tenant distribution become requirements.</p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="checklist">
+          <div class="section-header">
+            <p class="section-kicker">Hardening Path</p>
+            <h2>Production Checklist</h2>
+          </div>
+          <div class="section-body">
+            <ol class="checklist">
+              <li>Confirm HubSpot private app scopes or OAuth scopes for contacts, companies, tickets, deals, calls, notes, owners, properties, and pipelines.</li>
+              <li>Implement a server-side cache for contact lookup, metadata, and related object lists.</li>
+              <li>Normalize phone numbers before search and store cache keys consistently.</li>
+              <li>Batch related object reads where possible.</li>
+              <li>Gracefully render partial data when one HubSpot object family fails.</li>
+              <li>Log HubSpot correlation IDs and Twilio request SIDs for support.</li>
+              <li>Protect Studio-only functions and avoid public unauthenticated write endpoints.</li>
+              <li>Handle duplicate contacts and ambiguous matches explicitly.</li>
+              <li>Document pipeline stage IDs, association type IDs, and custom property names.</li>
+              <li>Validate EU versus US HubSpot portal URL patterns.</li>
+              <li>Define retry, backoff, and queue behavior for writes during HubSpot incidents.</li>
+              <li>Load test the expected call arrival and agent refresh patterns against current HubSpot limits.</li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="section" id="endpoints">
+          <div class="section-header">
+            <p class="section-kicker">Repository Pattern</p>
+            <h2>Reference Endpoints</h2>
+          </div>
+          <div class="section-body">
+            <p>
+              These endpoints mirror the implementation pattern used in this project. Names can change, but the boundary
+              should stay the same: Flex calls your backend; your backend calls HubSpot.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Endpoint</th>
+                    <th>Responsibility</th>
+                    <th>Audience</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td><code>GET /contact/search?phone=...</code></td><td>Search HubSpot contact by normalized phone number.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>POST /contact/create</code></td><td>Create a new contact when no match exists.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>POST /contact/update</code></td><td>Update contact properties from the details tab.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>GET /tickets?contactId=...</code> / <code>POST /tickets</code></td><td>List, create, update, prioritize, and close tickets.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>GET /deals?contactId=...</code> / <code>POST /deals</code></td><td>List, create, update, and advance deals through pipeline stages.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>GET /notes?contactId=...</code> / <code>POST /notes</code></td><td>List, create, and delete notes.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>GET /calls?contactId=...</code> / <code>POST /calls</code></td><td>List activities and manually log calls.</td><td>Flex plugin</td></tr>
+                  <tr><td><code>POST /log-call</code></td><td>Protected Twilio Studio function for post-call summary logging.</td><td>Studio automation</td></tr>
+                  <tr><td><code>GET /search?query=...</code></td><td>Idle-state contact search.</td><td>Flex dashboard</td></tr>
+                  <tr><td><code>GET /tickets/list?status=open</code></td><td>Idle-state ticket queue view.</td><td>Flex dashboard</td></tr>
+                  <tr><td><code>GET /deals/list?status=open</code></td><td>Idle-state deal follow-up view.</td><td>Flex dashboard</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <footer class="footer-note">
+        Verify HubSpot limits, object schemas, association type IDs, and pipeline values against the target portal before production.
+        This blueprint assumes Twilio Flex, Twilio Functions or an equivalent backend, and HubSpot CRM APIs.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
