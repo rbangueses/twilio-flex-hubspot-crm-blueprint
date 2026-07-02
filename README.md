@@ -44,13 +44,37 @@ The integration pattern here is to build a programmable Flex CRM panel backed by
 
 ## Architecture
 
-```text
-Twilio Flex Plugin → Twilio Functions Backend → HubSpot APIs
-                           │
-                           └── Optional cache / retry / rate-limit controls
+```mermaid
+flowchart TB
+  Agent["Human Agent"]
+  Flex["Twilio Flex Agent Desktop"]
+  Plugin["HubSpot CRM Panel<br/>Flex Plugin"]
+
+  Functions["Twilio Functions<br/>Backend API Proxy"]
+  Cache["Optional Cache<br/>CRM reads, metadata, associations"]
+
+  HubSpotAPI["HubSpot CRM APIs<br/>Contacts, tickets, deals, notes, calls"]
+  HubSpotUI["HubSpot CRM UI<br/>Full record view"]
+
+  Studio["Twilio Studio<br/>IVR + flow integrations"]
+  Automation["Twilio Automation Sources<br/>Conversation Intelligence, Flex Copilot, other systems"]
+
+  Agent --> Flex
+  Flex --> Plugin
+
+  Plugin -->|"Screen pop, search, CRUD actions"| Functions
+  Functions -->|"Read/write CRM objects"| HubSpotAPI
+  Functions <-->|"Short TTL cache<br/>rate-limit protection"| Cache
+
+  Plugin -->|"Open full record"| HubSpotUI
+
+  Studio -->|"Run Function<br/>call context / IVR events"| Functions
+  Automation -->|"Post-call summaries<br/>transcripts / classifications"| Functions
+
+  Functions -->|"Customer context<br/>tickets, deals, timeline"| Plugin
 ```
 
-The Flex plugin calls the backend. The backend calls HubSpot. HubSpot credentials never reach the browser.
+The Flex plugin calls the backend. The backend calls HubSpot APIs. Agents can still open the HubSpot CRM UI when they need the full record. HubSpot credentials never reach the browser.
 
 ## Prerequisites
 

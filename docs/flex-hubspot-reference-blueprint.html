@@ -304,6 +304,93 @@
       min-width: 760px;
     }
 
+    .component-map {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .component-row {
+      display: grid;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .component-row.agent-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .component-row.backend-row,
+    .component-row.crm-row,
+    .component-row.automation-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .component-node {
+      border: 1px solid #dce5f0;
+      border-radius: var(--radius);
+      background: #ffffff;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(23, 32, 51, 0.04);
+    }
+
+    .component-node h3 {
+      margin: 8px 0 4px;
+      font-size: 1rem;
+    }
+
+    .component-node p {
+      margin: 0;
+      color: #3a4658;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .component-node.twilio {
+      border-color: #f2c8ce;
+      background: #fff7f8;
+    }
+
+    .component-node.backend {
+      border-color: #cbd7ff;
+      background: #f7f9ff;
+    }
+
+    .component-node.hubspot {
+      border-color: #ffd1c2;
+      background: #fff8f5;
+    }
+
+    .component-node.cache {
+      border-color: #c7e7e2;
+      background: #f4fbfa;
+    }
+
+    .component-node.automation {
+      border-color: #f1d8aa;
+      background: #fffaf1;
+    }
+
+    .component-arrow {
+      display: grid;
+      place-items: center;
+      min-height: 22px;
+      color: #7b8798;
+      font-size: 0.82rem;
+      font-weight: 750;
+      text-align: center;
+    }
+
+    .component-arrow::before,
+    .component-arrow::after {
+      content: "";
+      display: block;
+      width: 1px;
+      height: 10px;
+      margin: 2px auto;
+      background: #b7c2d0;
+    }
+
     .arch-card {
       position: relative;
       border: 1px solid #dce5f0;
@@ -473,7 +560,7 @@
       display: block;
       width: 100%;
       height: auto;
-      border-bottom: 1px solid #dce5f0;
+      border-top: 1px solid #dce5f0;
     }
 
     .screenshot-caption {
@@ -611,7 +698,11 @@
 
       .hero-copy,
       .production-grid,
-      .three-grid {
+      .three-grid,
+      .component-row.agent-row,
+      .component-row.backend-row,
+      .component-row.crm-row,
+      .component-row.automation-row {
         grid-template-columns: 1fr;
       }
     }
@@ -759,25 +850,25 @@
             </p>
             <div class="screenshot-grid">
               <figure class="screenshot-card">
-                <img src="assets/flex-hubspot-activities.png" alt="Twilio Flex showing a HubSpot contact details tab with recent call activities and automated call summaries.">
                 <figcaption class="screenshot-caption">
                   <h3>Customer Details And Activity Timeline</h3>
                   <p>Agents can see customer fields, recent calls, and AI-generated call summaries without leaving Flex.</p>
                 </figcaption>
+                <img src="assets/flex-hubspot-activities.png" alt="Twilio Flex showing a HubSpot contact details tab with recent call activities and automated call summaries.">
               </figure>
               <figure class="screenshot-card">
-                <img src="assets/flex-hubspot-tickets.png" alt="Twilio Flex showing HubSpot tickets with expanded ticket details, priority, and status badges.">
                 <figcaption class="screenshot-caption">
                   <h3>Tickets In The CRM Panel</h3>
                   <p>Open and closed tickets can be surfaced next to the call, with status and priority controls tailored to the support process.</p>
                 </figcaption>
+                <img src="assets/flex-hubspot-tickets.png" alt="Twilio Flex showing HubSpot tickets with expanded ticket details, priority, and status badges.">
               </figure>
               <figure class="screenshot-card">
-                <img src="assets/flex-hubspot-notes.png" alt="Twilio Flex showing the HubSpot notes tab with a note form.">
                 <figcaption class="screenshot-caption">
                   <h3>Notes Written Back To HubSpot</h3>
                   <p>Agents can add structured notes during or after the conversation, while automation can write summaries through the same backend pattern.</p>
                 </figcaption>
+                <img src="assets/flex-hubspot-notes.png" alt="Twilio Flex showing the HubSpot notes tab with a note form.">
               </figure>
             </div>
           </div>
@@ -794,6 +885,64 @@
               caching, retries, and HubSpot-specific API behavior in the backend.
             </p>
             <div class="diagram-wrap">
+              <div class="component-map" aria-label="Component relationship diagram">
+                <div class="component-row agent-row">
+                  <article class="component-node twilio">
+                    <span class="arch-label flex">Agent</span>
+                    <h3>Human Agent</h3>
+                    <p>Handles the live conversation and uses Flex as the primary workspace.</p>
+                  </article>
+                  <article class="component-node twilio">
+                    <span class="arch-label flex">Twilio Flex</span>
+                    <h3>Agent Desktop</h3>
+                    <p>Hosts the live task, CRM panel, click-to-dial, and idle dashboard.</p>
+                  </article>
+                  <article class="component-node twilio">
+                    <span class="arch-label flex">Flex Plugin</span>
+                    <h3>HubSpot CRM Panel</h3>
+                    <p>Renders screen pop, search, contact details, tickets, notes, deals, and timeline.</p>
+                  </article>
+                </div>
+                <div class="component-arrow">Screen pop, search, CRUD actions</div>
+                <div class="component-row backend-row">
+                  <article class="component-node backend">
+                    <span class="arch-label backend">Backend API</span>
+                    <h3>Twilio Functions</h3>
+                    <p>Server-side proxy for HubSpot credentials, phone normalization, CRUD, retries, and protected writes.</p>
+                  </article>
+                  <article class="component-node cache">
+                    <span class="tag">Optional Cache</span>
+                    <h3>CRM Reads And Metadata</h3>
+                    <p>Short TTL cache for contact lookup, related records, associations, owners, properties, and pipeline metadata.</p>
+                  </article>
+                </div>
+                <div class="component-arrow">Read/write CRM data, or open the full record</div>
+                <div class="component-row crm-row">
+                  <article class="component-node hubspot">
+                    <span class="arch-label crm">HubSpot APIs</span>
+                    <h3>CRM System Of Record</h3>
+                    <p>Contacts, tickets, deals, notes, calls, companies, associations, and activity timelines.</p>
+                  </article>
+                  <article class="component-node hubspot">
+                    <span class="arch-label crm">HubSpot UI</span>
+                    <h3>Full Record View</h3>
+                    <p>Deep link target for the complete HubSpot record when the agent needs the native CRM surface.</p>
+                  </article>
+                </div>
+                <div class="component-arrow">Automation can write CRM context through the same backend boundary</div>
+                <div class="component-row automation-row">
+                  <article class="component-node automation">
+                    <span class="tag">Twilio Studio</span>
+                    <h3>IVR And Flow Integrations</h3>
+                    <p>Runs protected functions for call-flow events, routing context, and post-call logging.</p>
+                  </article>
+                  <article class="component-node automation">
+                    <span class="tag">Automation Sources</span>
+                    <h3>Conversation Intelligence, Flex Copilot, Other Systems</h3>
+                    <p>Publishes transcripts, summaries, classifications, and follow-up context into HubSpot.</p>
+                  </article>
+                </div>
+              </div>
               <div class="architecture-grid" aria-label="Architecture diagram">
                 <article class="arch-card">
                   <span class="arch-label flex">Twilio Flex</span>
